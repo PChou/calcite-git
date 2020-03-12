@@ -1,0 +1,15 @@
+version: 1.0
+defaultSchema: GIT
+schemas:
+  - name: GIT
+    tables:
+      - name: JAX
+        type: custom
+        factory: com.eoi.dc.calcite.git.GitLogTableFactory
+        operand:
+          file: /Users/pchou/Projects/java/jax/.git
+      - name: CALCITE
+        type: custom
+        factory: com.eoi.dc.calcite.git.GitLogTableFactory
+        operand:
+          file: /Users/pchou/Projects/java/calcite/.git

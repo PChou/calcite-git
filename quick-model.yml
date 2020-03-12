@@ -1,0 +1,10 @@
+version: 1.0
+defaultSchema: GIT
+schemas:
+  - name: GIT
+    tables:
+      - name: CALCITE_GIT
+        type: custom
+        factory: com.eoi.dc.calcite.git.GitLogTableFactory
+        operand:
+          file: .git
