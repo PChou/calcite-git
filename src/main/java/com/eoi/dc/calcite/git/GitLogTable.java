@@ -25,7 +25,7 @@ public class GitLogTable extends GitAbstractTable implements ScannableTable {
     public Enumerable<Object[]> scan(DataContext dataContext) {
         try {
             Process process = Runtime.getRuntime().exec(
-                    String.format("git --git-dir=%s log  --format=%%h,%%ct,%%ce --numstat",
+                    String.format("git --git-dir=%s log --format=%%h,%%at,%%ae,%%ct,%%ce --numstat",
                             this.repositoryDir)
             );
             return new GitLogTableEnumerator(process.getInputStream(), process.getErrorStream());
@@ -37,8 +37,10 @@ public class GitLogTable extends GitAbstractTable implements ScannableTable {
     @Override
     public RelDataType getRowType(RelDataTypeFactory relDataTypeFactory) {
         JavaTypeFactory factory = (JavaTypeFactory) relDataTypeFactory;
-        List<String> columnNames = Arrays.asList("HASH", "TIME", "COMMITTER", "FILE", "ADD", "REMOVE");
+        List<String> columnNames = Arrays.asList("HASH", "AUTHOR_TIME", "AUTHOR", "COMMITTER_TIME", "COMMITTER", "FILE", "ADD", "REMOVE");
         List<RelDataType> columnTypes = Arrays.asList(
+                factory.createSqlType(SqlTypeName.VARCHAR),
+                factory.createSqlType(SqlTypeName.TIMESTAMP),
                 factory.createSqlType(SqlTypeName.VARCHAR),
                 factory.createSqlType(SqlTypeName.TIMESTAMP),
                 factory.createSqlType(SqlTypeName.VARCHAR),

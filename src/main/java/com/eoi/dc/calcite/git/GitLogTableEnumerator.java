@@ -20,10 +20,12 @@ public class GitLogTableEnumerator extends AbstractEnumerable<Object[]>
     private BufferedReader stdoutReader;
 
     private String lastHash;
-    private Long lastTimestamp;
+    private Long lastAuthorTimestamp;
+    private String lastAuthor;
+    private Long lastCommitterTimestamp;
     private String lastCommitter;
     // header line like: 39bc26f,1583890041,di.wang@eoitek.com
-    private Pattern blockHeaderPattern = Pattern.compile("^([0-9a-f]+),(\\d+),(.+)$");
+    private Pattern blockHeaderPattern = Pattern.compile("^([0-9a-f]+),(\\d+),(.+),(\\d+),(.+)$");
     private Pattern diffLinePattern = Pattern.compile("^(\\d+)\\s+(\\d+)\\s+(.+)$");
 
     public GitLogTableEnumerator(InputStream stdout, InputStream stderr) {
@@ -43,7 +45,7 @@ public class GitLogTableEnumerator extends AbstractEnumerable<Object[]>
 
     /**
      * read a block
-     * 39bc26f,1583890041,di.wang@eoitek.com
+     * 39bc26f,1583890041,di.wang@eoitek.com,1583890041,di.wang@eoitek.com
      *
      * 1       2       jax-web/src/main/java/com/eoi/jax/web/schedule/service/....java
      * 6       3       jax-web/src/main/java/com/eoi/jax/web/service/PipelineService.java
@@ -57,15 +59,19 @@ public class GitLogTableEnumerator extends AbstractEnumerable<Object[]>
                 Matcher matcher = blockHeaderPattern.matcher(line);
                 if (matcher.find()) {
                     lastHash = matcher.group(1);
-                    lastTimestamp = Long.valueOf(matcher.group(2)) * 1000;
-                    lastCommitter = matcher.group(3);
+                    lastAuthorTimestamp = Long.valueOf(matcher.group(2)) * 1000;
+                    lastAuthor = matcher.group(3);
+                    lastCommitterTimestamp = Long.valueOf(matcher.group(4)) * 1000;
+                    lastCommitter = matcher.group(5);
                 } else {
                     Matcher matcher2 = diffLinePattern.matcher(line);
                     if (matcher2.find()) {
                         // produce a row
                         List<Object> row = new ArrayList<>();
                         row.add(lastHash);
-                        row.add(lastTimestamp);
+                        row.add(lastAuthorTimestamp);
+                        row.add(lastAuthor);
+                        row.add(lastCommitterTimestamp);
                         row.add(lastCommitter);
                         row.add(matcher2.group(3));
                         row.add(Integer.valueOf(matcher2.group(1)));
